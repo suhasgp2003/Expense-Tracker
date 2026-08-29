@@ -1,7 +1,7 @@
 /* Ledgerly is a local-first app: storage is centralized and each mutation calls renderApp. */
 const STORAGE = { transactions: "ledgerly:transactions:v1", settings: "ledgerly:settings:v1", theme: "ledgerly:theme:v1" };
 const CATEGORIES = ["Food", "Travel", "Shopping", "Bills", "Health", "Entertainment", "Other"];
-const COLORS = { Food: "#6955e9", Travel: "#26a5d1", Shopping: "#ed8a4a", Bills: "#e45d6b", Health: "#16a477", Entertainment: "#9d74e2", Other: "#94a0b4" };
+const COLORS = { Food: "#2e8b57", Travel: "#3cb371", Shopping: "#6b8e23", Bills: "#dc2626", Health: "#059669", Entertainment: "#a8d5ba", Other: "#718096" };
 const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 const dateFormat = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" });
 const monthFormat = new Intl.DateTimeFormat("en-IN", { month: "short" });
@@ -99,7 +99,7 @@ function renderCharts() {
   if (!window.Chart) return;
   charts.category?.destroy(); charts.monthly?.destroy(); const computed = getComputedStyle(document.body);
   charts.category = new Chart(dom.categoryChart, { type: "doughnut", data: { labels: categories.map(([key]) => key), datasets: [{ data: categories.map(([, value]) => value), backgroundColor: categories.map(([key]) => COLORS[key]), borderWidth: 0, hoverOffset: 4 }] }, options: { cutout: "69%", maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => `${context.label}: ${currency(context.raw)}` } } } } });
-  charts.monthly = new Chart(dom.monthlyChart, { type: "bar", data: { labels: months.map(({ label }) => label), datasets: [{ data: monthly, backgroundColor: "#6955e9", hoverBackgroundColor: "#4d3fc0", borderRadius: 5, maxBarThickness: 34 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => `Expenses: ${currency(context.raw)}` } } }, scales: { x: { border: { display: false }, grid: { display: false }, ticks: { color: computed.getPropertyValue("--muted"), font: { size: 10 } } }, y: { beginAtZero: true, border: { display: false }, grid: { color: computed.getPropertyValue("--line") }, ticks: { color: computed.getPropertyValue("--muted"), font: { size: 10 }, callback: (value) => `₹${Number(value) / 1000}k` } } } } });
+  charts.monthly = new Chart(dom.monthlyChart, { type: "bar", data: { labels: months.map(({ label }) => label), datasets: [{ data: monthly, backgroundColor: "#2e8b57", hoverBackgroundColor: "#1f6f44", borderRadius: 5, maxBarThickness: 34 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => `Expenses: ${currency(context.raw)}` } } }, scales: { x: { border: { display: false }, grid: { display: false }, ticks: { color: computed.getPropertyValue("--muted"), font: { size: 10 } } }, y: { beginAtZero: true, border: { display: false }, grid: { color: computed.getPropertyValue("--line") }, ticks: { color: computed.getPropertyValue("--muted"), font: { size: 10 }, callback: (value) => `₹${Number(value) / 1000}k` } } } } });
 }
 /** Central rendering keeps summary, list, charts, and budget status in sync. */
 function renderApp() { renderSummary(); renderTransactions(); renderCharts(); }
