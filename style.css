@@ -104,6 +104,7 @@ body.dark .remaining .stat-icon { background: #49321e; }
 .progress { height: 5px; margin: 11px 0 7px; overflow: hidden; border-radius: 50px; background: var(--line); }
 .progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--purple); transition: 0.35s; }
 .budget-alert { gap: 11px; margin: -3px 0 19px; padding: 12px 15px; border: 1px solid #f4c5cc; border-radius: 12px; background: var(--red-soft); color: #a93e50; font-size: 13px; }
+.budget-alert[hidden] { display: none; }
 .budget-alert > span { display: grid; width: 19px; height: 19px; place-items: center; border-radius: 50%; background: var(--red); color: #fff; font-weight: 800; }
 .budget-alert p { margin: 0; }
 .budget-alert .text-button { margin-left: auto; color: #b84758; white-space: nowrap; }
@@ -162,6 +163,7 @@ tr:hover .row-action, .row-action:focus { opacity: 1; }
 .empty-state p { max-width: 340px; margin: 0 0 15px; color: var(--muted); font-size: 12px; line-height: 1.5; }
 
 .modal-backdrop { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; padding: 22px; background: #1213228c; backdrop-filter: blur(3px); }
+.modal-backdrop[hidden] { display: none; }
 .modal { width: min(100%, 560px); padding: 24px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); box-shadow: 0 20px 65px #0004; animation: modal 0.2s; }
 .modal-small { width: min(100%, 410px); }
 .modal-heading { align-items: flex-start; justify-content: space-between; gap: 15px; margin-bottom: 21px; }
