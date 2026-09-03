@@ -1,6 +1,6 @@
 # Ledgerly — Personal Finance Dashboard
 
-Ledgerly is a local-first personal finance app built with plain HTML, CSS, and JavaScript. It upgrades the original beginner expense tracker into an interview-ready product while retaining its lightweight, no-build-step architecture.
+Ledgerly is a local-first personal finance app built with React and Vite. It upgrades the original beginner expense tracker into an interview-ready product with component-based UI state, while retaining a lightweight browser-only data model.
 
 ## Features
 
@@ -17,29 +17,31 @@ Ledgerly is a local-first personal finance app built with plain HTML, CSS, and J
 
 ## Run it
 
-Open `index.html` in a modern browser. A static server is recommended:
+Install packages, then launch the Vite development server:
 
 ```powershell
-npx serve .
+npm install
+npm run dev
 ```
 
-Chart.js and jsPDF load from CDN; core tracking and persistence work entirely in the browser.
+Create a production build with `npm run build`. Chart.js and jsPDF are installed npm dependencies; core tracking and persistence work entirely in the browser.
 
 ## Architecture
 
 ```text
-User event → validation → state mutation → localStorage save → renderApp()
-                                                          ├─ summary + budget status
-                                                          ├─ filtered transaction list
-                                                          └─ charts + category legend
+User event → React handler → state update → localStorage persistence
+                                  ↓
+                              React re-render
+                              ├─ summary + budget status
+                              ├─ filtered transaction list
+                              └─ charts + category legend
 ```
 
-`script.js` separates responsibilities into small reusable functions:
+The React application separates responsibilities into small reusable modules:
 
-- Storage: `read`, `load`, `save`, `normalize`
-- Calculations: `summary`, `currentMonth`, `categoryTotals`, `lastSixMonths`
-- Rendering: `renderSummary`, `renderTransactions`, `renderCharts`, `renderApp`
-- Controllers: form submission, filters, budget, exports, theme, and insights
+- `src/App.jsx` contains the dashboard, chart, transaction list, and modal components.
+- `src/lib/finance.js` contains persistence, data migration, calculation, chart, and insight helpers.
+- `src/main.jsx` mounts the React application and imports the shared styling.
 
 Each transaction has a backend-friendly shape:
 
@@ -60,10 +62,14 @@ Each transaction has a backend-friendly shape:
 
 ```text
 Expense Tracker/
-├── index.html       # Semantic dashboard, filters, dialogs, and third-party CDN scripts
-├── style.css        # Design tokens, responsive styling, dark theme, and animations
-├── script.js        # State, CRUD, persistence, analytics, exports, and interactions
-└── README.md        # Architecture and development guide
+├── src/
+│   ├── App.jsx          # React UI components and event handlers
+│   ├── main.jsx         # React application entry point
+│   └── lib/finance.js   # Data model, persistence, analytics, and insights
+├── index.html           # Vite document shell
+├── style.css            # Design tokens, responsive styling, dark theme, and animations
+├── package.json         # React, Vite, Chart.js, and jsPDF dependencies
+└── README.md            # Architecture and development guide
 ```
 
 ## Implementation guide
