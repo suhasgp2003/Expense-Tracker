@@ -1,9 +1,3 @@
-export const STORAGE = Object.freeze({
-  transactions: "ledgerly:transactions:v1",
-  settings: "ledgerly:settings:v1",
-  theme: "ledgerly:theme:v1",
-});
-
 export const CATEGORIES = Object.freeze([
   "Food",
   "Travel",
@@ -36,7 +30,7 @@ export const dateFormatter = new Intl.DateTimeFormat("en-IN", {
   year: "numeric",
 });
 
-export const monthFormatter = new Intl.DateTimeFormat("en-IN", { month: "short" });
+const monthFormatter = new Intl.DateTimeFormat("en-IN", { month: "short" });
 
 export function today() {
   return new Date().toISOString().slice(0, 10);
@@ -51,17 +45,17 @@ export function money(value) {
   return currencyFormatter.format(value || 0);
 }
 
-export function createId() {
+export function createTransactionId() {
   return crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-/** Converts signed starter-project records into the typed React application model. */
+/** Normalizes legacy and form records into one stable transaction shape. */
 export function normalizeTransaction(raw) {
   const rawAmount = Number(raw.amount);
   const type = raw.type ?? (rawAmount >= 0 ? "income" : "expense");
 
   return {
-    id: String(raw.id || createId()),
+    id: String(raw.id || createTransactionId()),
     description: String(raw.description || "Untitled transaction").trim(),
     amount: Math.abs(rawAmount) || 0,
     type: type === "income" ? "income" : "expense",
@@ -70,33 +64,6 @@ export function normalizeTransaction(raw) {
     createdAt: raw.createdAt || new Date().toISOString(),
     updatedAt: raw.updatedAt || new Date().toISOString(),
   };
-}
-
-export function readJson(key, fallback) {
-  try {
-    return JSON.parse(localStorage.getItem(key)) ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-export function loadLedger() {
-  const savedTransactions = readJson(STORAGE.transactions, null);
-  const legacyTransactions = savedTransactions === null ? readJson("transactions", []) : savedTransactions;
-  const transactions = Array.isArray(legacyTransactions)
-    ? legacyTransactions.map(normalizeTransaction).filter((item) => item.amount > 0)
-    : [];
-  const savedSettings = readJson(STORAGE.settings, {});
-
-  return {
-    transactions,
-    monthlyBudget: Math.max(0, Number(savedSettings.monthlyBudget) || 0),
-  };
-}
-
-export function persistLedger(transactions, monthlyBudget) {
-  localStorage.setItem(STORAGE.transactions, JSON.stringify(transactions));
-  localStorage.setItem(STORAGE.settings, JSON.stringify({ monthlyBudget }));
 }
 
 export function calculateSummary(transactions) {
@@ -125,6 +92,29 @@ export function getLastSixMonths() {
     date.setMonth(date.getMonth() - (5 - index));
     return { key: monthKey(date), label: monthFormatter.format(date) };
   });
+}
+
+export function getMonthlyExpenseTotals(transactions, months) {
+  return months.map(({ key }) => transactions
+    .filter((transaction) => transaction.type === "expense" && transaction.date.startsWith(key))
+    .reduce((sum, transaction) => sum + transaction.amount, 0));
+}
+
+export function filterTransactions(transactions, filters) {
+  const comparators = {
+    newest: (a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt),
+    oldest: (a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt),
+    highest: (a, b) => b.amount - a.amount,
+    lowest: (a, b) => a.amount - b.amount,
+  };
+  const searchTerm = filters.search.trim().toLowerCase();
+
+  return transactions
+    .filter((transaction) => !searchTerm || transaction.description.toLowerCase().includes(searchTerm))
+    .filter((transaction) => filters.category === "all" || transaction.category === filters.category)
+    .filter((transaction) => !filters.start || transaction.date >= filters.start)
+    .filter((transaction) => !filters.end || transaction.date <= filters.end)
+    .sort(comparators[filters.sort] ?? comparators.newest);
 }
 
 export function getInsights(transactions, monthlyBudget) {

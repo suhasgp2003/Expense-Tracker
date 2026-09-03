@@ -39,9 +39,11 @@ User event → React handler → state update → localStorage persistence
 
 The React application separates responsibilities into small reusable modules:
 
-- `src/App.jsx` contains the dashboard, chart, transaction list, and modal components.
-- `src/lib/finance.js` contains persistence, data migration, calculation, chart, and insight helpers.
-- `src/main.jsx` mounts the React application and imports the shared styling.
+- `src/pages/Dashboard.jsx` coordinates dashboard-only UI state such as filters, dialogs, exports, and notifications.
+- `src/context/TransactionContext.jsx` is the single source of truth for persistent transactions and budgets.
+- `src/hooks/useTransactions.js` exposes derived summaries, analytics, filters, and transaction actions.
+- `src/components/` contains focused, reusable presentation and form components.
+- `src/utils/` contains browser storage, financial calculations, and export logic with no JSX.
 
 Each transaction has a backend-friendly shape:
 
@@ -63,11 +65,28 @@ Each transaction has a backend-friendly shape:
 ```text
 Expense Tracker/
 ├── src/
-│   ├── App.jsx          # React UI components and event handlers
-│   ├── main.jsx         # React application entry point
-│   └── lib/finance.js   # Data model, persistence, analytics, and insights
+│   ├── assets/                  # Static assets
+│   ├── components/              # Reusable UI and form components
+│   │   ├── Navbar.jsx
+│   │   ├── SummaryCards.jsx
+│   │   ├── TransactionForm.jsx
+│   │   ├── TransactionList.jsx
+│   │   └── TransactionItem.jsx
+│   ├── context/
+│   │   └── TransactionContext.jsx
+│   ├── hooks/
+│   │   └── useTransactions.js
+│   ├── pages/
+│   │   └── Dashboard.jsx
+│   ├── styles/
+│   │   └── index.css
+│   ├── utils/
+│   │   ├── localStorage.js
+│   │   ├── finance.js
+│   │   └── exports.js
+│   ├── App.jsx                  # Application composition and theme state
+│   └── main.jsx                 # React application entry point
 ├── index.html           # Vite document shell
-├── style.css            # Design tokens, responsive styling, dark theme, and animations
 ├── package.json         # React, Vite, Chart.js, and jsPDF dependencies
 └── README.md            # Architecture and development guide
 ```
